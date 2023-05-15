@@ -1,0 +1,26 @@
+---
+bpf_license: Dual BSD/GPL
+filename: distributed
+
+associations:
+  - event_source:
+      spec: uprobe//usr/sbin/nginx:ngx_http_create_request
+    propositions:
+      - name: req
+  - event_source:
+      spec: kretprobe/tcp_v4_connect
+    propositions:
+      - name: tcpconnectauthelia
+        predicate: dport == 9091
+  - event_source:
+      spec: uprobe//usr/bin/node:uv_accept
+    propositions:
+      - name: tcpaccepthello
+  - event_source:
+      spec: usdt//usr/sbin/nginx:ngx_http_upstream:auth_res
+      args:
+        - int cnum
+        - int http_status
+    propositions:
+      - name: authed
+        predicate: http_status == 200

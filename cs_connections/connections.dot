@@ -1,0 +1,50 @@
+digraph G {
+  q4 -> q7 [label="\"httpconn\""];
+  q7 -> q1 [label="\"httpconn\""];
+  q4 -> q1 [label="\"upstreamauthelia\""];
+  q0 -> q0 [label="\"verifyauth\""];
+  q6 -> q3 [label="\"httpclose\""];
+  q2 -> q1 [label="\"httpconn\""];
+  q0 -> q3 [label="\"httpclose\""];
+  q5 -> q5 [label="\"httpconn\""];
+  q7 -> q1 [label="\"upstreamhello\""];
+  q4 -> q1 [label="\"httpclose\""];
+  q2 -> q1 [label="\"verifyauth\""];
+  q5 -> q6 [label="\"upstreamhello\""];
+  q2 -> q1 [label="\"upstreamhello\""];
+  q6 -> q1 [label="\"upstreamauthelia\""];
+  q3 -> q3 [label="?"];
+  q2 -> q2 [label="\"upstreamauthelia\""];
+  q1 -> q1 [label="?"];
+  q5 -> q1 [label="\"httpclose\""];
+  q6 -> q6 [label="\"upstreamhello\""];
+  q4 -> q1 [label="\"authed\""];
+  q0 -> q5 [label="\"authed\""];
+  q0 -> q1 [label="\"upstreamauthelia\""];
+  q6 -> q5 [label="\"authed\""];
+  q6 -> q5 [label="\"verifyauth\""];
+  q5 -> q1 [label="\"upstreamauthelia\""];
+  q2 -> q3 [label="\"httpclose\""];
+  q2 -> q1 [label="\"authed\""];
+  q7 -> q1 [label="\"authed\""];
+  q5 -> q5 [label="\"verifyauth\""];
+  q6 -> q5 [label="\"httpconn\""];
+  q5 -> q5 [label="\"authed\""];
+  q0 -> q1 [label="\"httpconn\""];
+  q7 -> q3 [label="\"httpclose\""];
+  q0 -> q1 [label="\"upstreamhello\""];
+  q4 -> q1 [label="\"verifyauth\""];
+  q4 -> q1 [label="\"upstreamhello\""];
+  q7 -> q0 [label="\"verifyauth\""];
+  q7 -> q2 [label="\"upstreamauthelia\""];
+  start [shape=none, style=invis];
+  start -> q4 [label="START"];
+  q5 [style=filled, fillcolor=yellow]
+  q6 [style=filled, fillcolor=yellow]
+  q7 [style=filled, fillcolor=yellow]
+  q4 [style=filled, fillcolor=yellow]
+  q0 [style=filled, fillcolor=yellow]
+  q2 [style=filled, fillcolor=yellow]
+  q3 [style=filled, fillcolor=green]
+  q1 [style=filled, fillcolor=red]
+}

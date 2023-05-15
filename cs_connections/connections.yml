@@ -1,0 +1,44 @@
+---
+bpf_license: Dual BSD/GPL
+
+state_entry_id_arg: int cnum
+filename: connections
+associations:
+  - event_source:
+      spec: usdt//usr/sbin/nginx:ngx_http_request:http_init_connection
+      args:
+        - int cnum
+    propositions:
+      - name: httpconn
+  - event_source:
+      spec: usdt//usr/sbin/nginx:ngx_http_request:http_close_connection
+      args:
+        - int cnum
+    propositions:
+      - name: httpclose
+  - event_source:
+      spec: usdt//usr/sbin/nginx:ngx_http_upstream:verifyauth
+      args:
+        - int cnum
+    propositions:
+      - name: verifyauth
+  - event_source:
+      spec: usdt//usr/sbin/nginx:ngx_http_upstream:authelia
+      args:
+        - int cnum
+    propositions:
+      - name: upstreamauthelia
+  - event_source:
+      spec: usdt//usr/sbin/nginx:ngx_http_upstream:hello
+      args:
+        - int cnum
+    propositions:
+      - name: upstreamhello
+  - event_source:
+      spec: usdt//usr/sbin/nginx:ngx_http_upstream:auth_res
+      args:
+        - int cnum
+        - int status
+    propositions:
+      - name: authed
+        predicate: status == 200

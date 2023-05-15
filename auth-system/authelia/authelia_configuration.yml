@@ -1,0 +1,59 @@
+jwt_secret: a_very_important_secret
+# default_redirection_url: https://auth.hello.com
+theme: auto
+
+server:
+  host: 127.0.0.1
+  port: 9091
+
+log:
+  level: debug
+
+totp:
+  issuer: hello.com
+  algorithm: sha1
+  digits: 6
+
+# Set by AUTHELIA_AUTHENTICATION_BACKEND_FILE_PATH
+authentication_backend:
+  file:
+    path: users_db.yml
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: hello.com
+      policy: two_factor
+      subject:
+        - ['group:admin']
+      resources:
+        - '^/admin$'
+    - domain: hello.com
+      policy: one_factor
+      subject:
+        - ['group:user']
+      resources:
+        - '^/user([/?].*)?$'
+    - domain: hello.com
+      policy: bypass
+      resources:
+        - '^/world([/?].*)?$'
+        - '^/favicon.ico'
+
+session:
+  name: authelia_session
+  secret: unsecure_session_secret
+  expiration: 3600
+  inactivity: 300
+  domain: hello.com
+
+storage:
+  encryption_key: my_very_secret_encryption_key
+  # Set by AUTHELIA_STORAGE_LOCAL_PATH
+  local:
+    path: db.sqlite3
+
+# Set by AUTHELIA_NOTIFIER_FILESYSTEM_FILENAME
+notifier:
+  filesystem:
+    filename: notification.txt

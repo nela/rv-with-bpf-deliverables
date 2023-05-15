@@ -1,0 +1,26 @@
+digraph G {
+  q0 -> q2 [label="\"authed\""];
+  q2 -> q2 [label="?"];
+  q0 -> q2 [label="\"tcpconnectauthelia\""];
+  q1 -> q2 [label="\"tcpaccepthello\""];
+  q3 -> q3 [label="\"tcpconnectauthelia\""];
+  q1 -> q4 [label="\"req\""];
+  q0 -> q1 [label="\"tcpaccepthello\""];
+  q4 -> q3 [label="\"tcpconnectauthelia\""];
+  q3 -> q4 [label="\"req\""];
+  q0 -> q2 [label="\"req\""];
+  q3 -> q0 [label="\"authed\""];
+  q1 -> q2 [label="\"tcpconnectauthelia\""];
+  q1 -> q2 [label="\"authed\""];
+  q4 -> q2 [label="\"authed\""];
+  q4 -> q2 [label="\"tcpaccepthello\""];
+  q4 -> q4 [label="\"req\""];
+  q3 -> q2 [label="\"tcpaccepthello\""];
+  start [shape=none, style=invis];
+  start -> q1 [label="START"];
+  q0 [style=filled, fillcolor=yellow]
+  q2 [style=filled, fillcolor=red]
+  q1 [style=filled, fillcolor=yellow]
+  q4 [style=filled, fillcolor=yellow]
+  q3 [style=filled, fillcolor=yellow]
+}

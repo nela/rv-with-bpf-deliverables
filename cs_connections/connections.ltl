@@ -1,0 +1,1 @@
+LTL=httpconn && X(verifyauth && X ( verifyauth U (authed && X (upstreamhello U httpclose R (!httpconn && !upstreamauthelia ) ) || httpclose ) ) || upstreamauthelia U httpclose)

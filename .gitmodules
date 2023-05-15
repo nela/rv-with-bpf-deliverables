@@ -1,0 +1,6 @@
+[submodule "dottobpf"]
+	path = dottobpf
+	url = git@github.com:nela/dottobpf.git
+[submodule "libbpf"]
+	path = libbpf
+	url = git@github.com:libbpf/libbpf.git

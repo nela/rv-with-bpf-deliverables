@@ -1,0 +1,209 @@
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/auto/cc/gcc nginx-1.18.0.usdt/auto/cc/gcc
+--- nginx-1.18.0/auto/cc/gcc	2020-04-21 16:09:01.000000000 +0200
++++ nginx-1.18.0.usdt/auto/cc/gcc	2023-04-02 14:20:13.372235682 +0200
+@@ -166,7 +166,7 @@
+ 
+ 
+ # stop on warning
+-CFLAGS="$CFLAGS -Werror"
++# CFLAGS="$CFLAGS -Werror"
+ 
+ # debug
+ CFLAGS="$CFLAGS -g"
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/auto/dtrace nginx-1.18.0.usdt/auto/dtrace
+--- nginx-1.18.0/auto/dtrace	1970-01-01 01:00:00.000000000 +0100
++++ nginx-1.18.0.usdt/auto/dtrace	2023-05-10 15:56:33.106862466 +0200
+@@ -0,0 +1,17 @@
++#!/bin/sh
++
++if ! type dtrace > /dev/null; then
++  echo "Dtrace command unavailable. Exiting without compiling dtrace objects.."
++  exit
++fi
++
++DTRACE_OBJ_DIR=objs/src/dtrace
++
++[ ! -d objs/src/dtrace ] && mkdir -p objs/src/dtrace
++
++for file in $DTRACE_SOURCES
++do
++    obj_file=`echo $(basename $file) | sed -e "s#\.dtrace.d#\.dtrace.o#"`
++    dtrace -G -s $file
++    mv $obj_file $DTRACE_OBJ_DIR
++done
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/auto/make nginx-1.18.0.usdt/auto/make
+--- nginx-1.18.0/auto/make	2020-04-21 16:09:01.000000000 +0200
++++ nginx-1.18.0.usdt/auto/make	2023-05-10 15:56:33.106862466 +0200
+@@ -201,11 +201,16 @@
+    ngx_rcc=`echo $NGX_RCC | sed -e "s/\//$ngx_regex_dirsep/g"`
+ fi
+ 
+-ngx_deps=`echo $ngx_all_objs $ngx_modules_obj $ngx_res $LINK_DEPS \
++
++dtrace_objs=`echo $DTRACE_SOURCES \
++    | sed -e "s/src/objs\/src/g" \
++          -e "s/dtrace\.d/dtrace\.o/g"`
++
++ngx_deps=`echo $ngx_all_objs $ngx_modules_obj $ngx_res $dtrace_objs $LINK_DEPS \
+     | sed -e "s/  *\([^ ][^ ]*\)/$ngx_regex_cont\1/g" \
+           -e "s/\//$ngx_regex_dirsep/g"`
+ 
+-ngx_objs=`echo $ngx_all_objs $ngx_modules_obj \
++ngx_objs=`echo $ngx_all_objs $ngx_modules_obj $dtrace_objs \
+     | sed -e "s/  *\([^ ][^ ]*\)/$ngx_long_regex_cont\1/g" \
+           -e "s/\//$ngx_regex_dirsep/g"`
+ 
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/auto/sources nginx-1.18.0.usdt/auto/sources
+--- nginx-1.18.0/auto/sources	2020-04-21 16:09:01.000000000 +0200
++++ nginx-1.18.0.usdt/auto/sources	2023-05-10 15:56:33.106862466 +0200
+@@ -255,3 +255,6 @@
+ 
+ 
+ HTTP_FILE_CACHE_SRCS=src/http/ngx_http_file_cache.c
++
++DTRACE_SOURCES="src/dtrace/ngx_http_request.dtrace.d \
++                src/dtrace/ngx_http_upstream.dtrace.d"
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/configure nginx-1.18.0.usdt/configure
+--- nginx-1.18.0/configure	2020-04-21 16:09:01.000000000 +0200
++++ nginx-1.18.0.usdt/configure	2023-05-10 15:56:33.106862466 +0200
+@@ -10,6 +10,7 @@
+ . auto/options
+ . auto/init
+ . auto/sources
++. auto/dtrace
+ 
+ test -d $NGX_OBJS || mkdir -p $NGX_OBJS
+ 
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/Makefile nginx-1.18.0.usdt/Makefile
+--- nginx-1.18.0/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ nginx-1.18.0.usdt/Makefile	2023-05-10 15:56:33.102862332 +0200
+@@ -0,0 +1,23 @@
++
++default:	build
++
++clean:
++	rm -rf Makefile objs
++
++build:
++	$(MAKE) -f objs/Makefile
++
++install:
++	$(MAKE) -f objs/Makefile install
++
++modules:
++	$(MAKE) -f objs/Makefile modules
++
++upgrade:
++	/usr/sbin -t
++
++	kill -USR2 `cat /run/nginx.pid`
++	sleep 1
++	test -f /run/nginx.pid.oldbin
++
++	kill -QUIT `cat /run/nginx.pid.oldbin`
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/src/dtrace/ngx_http_request.dtrace.d nginx-1.18.0.usdt/src/dtrace/ngx_http_request.dtrace.d
+--- nginx-1.18.0/src/dtrace/ngx_http_request.dtrace.d	1970-01-01 01:00:00.000000000 +0100
++++ nginx-1.18.0.usdt/src/dtrace/ngx_http_request.dtrace.d	2023-05-10 15:56:33.106862466 +0200
+@@ -0,0 +1,10 @@
++provider ngx_http_request {
++  probe http_init_connection(int);
++  probe http_close_connection(int);
++}
++
++#pragma D attributes Evolving/Evolving/ISA provider node provider
++#pragma D attributes Private/Private/Unknown provider node module
++#pragma D attributes Private/Private/Unknown provider node function
++#pragma D attributes Private/Private/ISA provider node name
++#pragma D attributes Evolving/Evolving/ISA provider node args
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/src/dtrace/ngx_http_upstream.dtrace.d nginx-1.18.0.usdt/src/dtrace/ngx_http_upstream.dtrace.d
+--- nginx-1.18.0/src/dtrace/ngx_http_upstream.dtrace.d	1970-01-01 01:00:00.000000000 +0100
++++ nginx-1.18.0.usdt/src/dtrace/ngx_http_upstream.dtrace.d	2023-05-10 15:56:33.106862466 +0200
+@@ -0,0 +1,15 @@
++provider ngx_http_upstream {
++  probe verifyauth(int);
++  probe authelia(int);
++  probe hello(int);
++  probe auth_res(int, int);
++
++  probe connect(int, u_char*, u_char*);
++  probe finalize_request(int, u_char*, u_char*, int);
++}
++
++#pragma D attributes Evolving/Evolving/ISA provider node provider
++#pragma D attributes Private/Private/Unknown provider node module
++#pragma D attributes Private/Private/Unknown provider node function
++#pragma D attributes Private/Private/ISA provider node name
++#pragma D attributes Evolving/Evolving/ISA provider node args
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/src/http/ngx_http_request.c nginx-1.18.0.usdt/src/http/ngx_http_request.c
+--- nginx-1.18.0/src/http/ngx_http_request.c	2020-04-21 16:09:01.000000000 +0200
++++ nginx-1.18.0.usdt/src/http/ngx_http_request.c	2023-05-10 15:56:33.110862600 +0200
+@@ -8,6 +8,7 @@
+ #include <ngx_config.h>
+ #include <ngx_core.h>
+ #include <ngx_http.h>
++#include <sys/sdt.h>
+ 
+ 
+ static void ngx_http_wait_request_handler(ngx_event_t *ev);
+@@ -230,6 +231,8 @@
+ 
+     port = c->listening->servers;
+ 
++    DTRACE_PROBE1(ngx_http_request, http_init_connection, c->number);
++
+     if (port->naddrs > 1) {
+ 
+         /*
+@@ -3672,6 +3675,8 @@
+ void
+ ngx_http_close_connection(ngx_connection_t *c)
+ {
++    DTRACE_PROBE1(ngx_http_request, http_close_connection, c->number);
++
+     ngx_pool_t  *pool;
+ 
+     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, c->log, 0,
+diff -uN -r -x .git -x .gitignore -x compile_commands.json nginx-1.18.0/src/http/ngx_http_upstream.c nginx-1.18.0.usdt/src/http/ngx_http_upstream.c
+--- nginx-1.18.0/src/http/ngx_http_upstream.c	2020-04-21 16:09:01.000000000 +0200
++++ nginx-1.18.0.usdt/src/http/ngx_http_upstream.c	2023-05-10 15:56:33.110862600 +0200
+@@ -8,6 +8,7 @@
+ #include <ngx_config.h>
+ #include <ngx_core.h>
+ #include <ngx_http.h>
++#include <sys/sdt.h>
+ 
+ 
+ #if (NGX_HTTP_CACHE)
+@@ -1504,6 +1505,17 @@
+     ngx_int_t          rc;
+     ngx_connection_t  *c;
+ 
++    DTRACE_PROBE3(ngx_http_upstream, connect, r->connection->number,
++                  r->headers_in.server.data, r->uri.data);
++
++    if (strstr((char *) r->headers_in.server.data, "auth") != NULL) {
++        DTRACE_PROBE1(ngx_http_upstream, authelia, r->connection->number);
++    } else if (strncmp((char *) r->uri.data, "/verifyauth", 10) == 0) {
++        DTRACE_PROBE1(ngx_http_upstream, verifyauth, r->connection->number);
++    } else {
++        DTRACE_PROBE1(ngx_http_upstream, hello, r->connection->number);
++    }
++
+     r->connection->log->action = "connecting to upstream";
+ 
+     if (u->state && u->state->response_time == (ngx_msec_t) -1) {
+@@ -4321,6 +4333,14 @@
+ ngx_http_upstream_finalize_request(ngx_http_request_t *r,
+     ngx_http_upstream_t *u, ngx_int_t rc)
+ {
++    DTRACE_PROBE4(ngx_http_upstream, finalize_request,
++                  r->connection->number, r->headers_in.server.data, r->uri.data,
++                  r->headers_out.status);
++
++    if (!strncmp((char *) r->uri.data, "/verifyauth", 10)) {
++        DTRACE_PROBE2(ngx_http_upstream, auth_res, r->connection->number, r->headers_out.status);
++    }
++
+     ngx_uint_t  flush;
+ 
+     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,

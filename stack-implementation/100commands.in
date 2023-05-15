@@ -1,0 +1,100 @@
+pop
+empty
+empty
+push 1
+full
+pop
+empty
+pop
+full
+push 0
+empty
+push 56
+pop
+pop
+push 73
+full
+push 87
+full
+empty
+full
+push 7
+full
+empty
+push 54
+full
+push 54
+full
+empty
+full
+empty
+full
+full
+empty
+empty
+push 77
+pop
+empty
+pop
+pop
+push 92
+push 24
+full
+empty
+pop
+pop
+empty
+empty
+push 30
+pop
+pop
+empty
+full
+push 48
+full
+pop
+empty
+push 54
+push 26
+full
+push 70
+push 9
+empty
+push 35
+pop
+empty
+empty
+empty
+pop
+pop
+pop
+empty
+full
+push 21
+pop
+empty
+push 98
+empty
+full
+push 34
+full
+full
+push 1
+empty
+push 14
+full
+full
+empty
+push 41
+full
+empty
+pop
+push 100
+empty
+pop
+empty
+pop
+full
+full
+push 37
+empty

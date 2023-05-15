@@ -1,0 +1,1 @@
+LTL=G( ((req && F tcpaccepthello) -> (!tcpaccepthello W (tcpconnectauthelia && X authed) ) ) && (authed -> X (tcpaccepthello && X req) ) ) && !(authed || tcpconnectauthelia || tcpaccepthello) W req

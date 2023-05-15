@@ -1,0 +1,11 @@
+users:
+  admin1:
+    displayname: "Admin 1"
+    password: $argon2id$v=19$m=65536,t=3,p=4$WCtlK3FsQWVESHhXNlF6Kw$EDm3cIz/SY9cSKxeyndOeELTNLK9UQHzBza/Ce63tYk
+    groups:
+      - admin
+  user1:
+    displayname: "User 1"
+    password: $argon2id$v=19$m=65536,t=3,p=4$LzhBbUc0MmNpbkxweXFQZQ$lSqnWHFt4iuA+Iu3WwqBBKVi2a2+jYuTxKDMsLG2V84
+    groups:
+      - user

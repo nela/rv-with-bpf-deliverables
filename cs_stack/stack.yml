@@ -1,0 +1,48 @@
+---
+# Required
+bpf_license: Dual BSD/GPL
+
+# Required
+# Array that associates propositions to eBPF event sources.
+# Propositions reference automatas propositions
+associations:
+  # Optional
+  # File name in which to write the eBPF program
+  # filename: myfile - defaults to 'monitor'
+
+  # Required
+  # eBPF event source specification
+  - event_source:
+      # Required
+      # Event specification
+      spec: uretprobe//usr/local/bin/stack:empty
+
+      # Optional
+      # Arguments to provide to the generated function
+      args:
+        - int retval
+
+    # Required
+    # Array of propositions that should be asserted by the eBPF program
+    # Propositions should be in the set of automatas atomic propositions
+    propositions:
+      - name: empty
+
+      # Optional
+      # The proposition is asserted only when the predicate is satisfied.
+      # Examples:
+      # - 1
+      # - 0
+      # - retval == 1
+      # Here the 'retval' variable must be a C type variable readily available
+      # in the eBPF program function. Either as a passed argument, or supplied manually
+      # after script generation.
+        predicate: retval == 1
+  - event_source:
+      spec: uprobe//usr/local/bin/stack:push
+    propositions:
+      - name: push
+  - event_source:
+      spec: uprobe//usr/local/bin/stack:pop
+    propositions:
+      - name: pop
